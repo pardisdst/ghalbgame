@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی آموزشی آناتومی قلب</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Naskh Arabic', serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* صفحه شروع */
+        .start-screen {
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+        
+        p {
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+        
+        .previous-score {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px dashed #ddd;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 15px 0;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            margin: 10px 5px;
+        }
+        
+        button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+        }
+        
+        /* صفحه بازی */
+        .game-screen {
+            display: none;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .avatar-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar {
+            width: 60px;
+            height: 60px;
+            background-color: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-left: 15px;
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .coins {
+            display: flex;
+            align-items: center;
+            font-size: 1.2rem;
+        }
+        
+        .coins span {
+            margin-right: 5px;
+        }
+        
+        .coin-icon {
+            color: gold;
+            font-size: 1.5rem;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #e74c3c;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+        
+        .question-container {
+            margin: 30px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        .question {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+        
+        .option {
+            background-color: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .option:hover {
+            background-color: #e9ecef;
+            border-color: #adb5bd;
+        }
+        
+        .option.correct {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #27ae60;
+        }
+        
+        .option.wrong {
+            background-color: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+        }
+        
+        /* صفحه پایان */
+        .end-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+        }
+        
+        .score-comparison {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+        
+        .score-box {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            width: 45%;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .score-box h3 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        .score-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .leaderboard {
+            margin: 40px 0;
+            text-align: right;
+        }
+        
+        .leaderboard h2 {
+            color: #e74c3c;
+            margin-bottom: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* رسپانسیو */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .score-comparison {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .score-box {
+                width: 90%;
+                margin-bottom: 20px;
+            }
+            
+            .avatar {
+                width: 50px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .avatar-container {
+                margin-bottom: 15px;
+            }
+            
+            .question {
+                font-size: 1.1rem;
+            }
+            
+            .option {
+                padding: 12px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- صفحه شروع -->
+        <div class="start-screen" id="startScreen">
+            <h1>بازی آموزشی آناتومی قلب</h1>
+            <p>به بازی آموزشی آناتومی قلب خوش آمدید! در این بازی با پاسخ به سوالات مختلف درباره آناتومی قلب، دانش خود را محک بزنید.</p>
+            
+            <div class="previous-score" id="previousScoreContainer">
+                <h3>بهترین امتیاز قبلی شما:</h3>
+                <p id="previousScore">شما هنوز بازی نکرده‌اید</p>
+            </div>
+            
+            <input type="text" id="playerName" placeholder="نام خود را وارد کنید" required>
+            <button id="startButton">شروع بازی</button>
+        </div>
+        
+        <!-- صفحه بازی -->
+        <div class="game-screen" id="gameScreen">
+            <div class="game-header">
+                <div class="avatar-container">
+                    <div class="avatar" id="avatar">
+                        <span>❤️</span>
+                    </div>
+                    <div id="playerNameDisplay"></div>
+                </div>
+                <div class="coins">
+                    <span id="coinCount">0</span>
+                    <span class="coin-icon">🪙</span>
+                </div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="question-container" id="questionContainer">
+                <div class="question" id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+            </div>
+        </div>
+        
+        <!-- صفحه پایان -->
+        <div class="end-screen" id="endScreen">
+            <h1>بازی به پایان رسید!</h1>
+            <p id="finalMessage">تبریک! شما بازی را با موفقیت به پایان رساندید.</p>
+            
+            <div class="score-comparison">
+                <div class="score-box">
+                    <h3>امتیاز فعلی</h3>
+                    <div class="score-value" id="currentScore">0</div>
+                    <p id="correctAnswers"></p>
+                    <p id="wrongAnswers"></p>
+                </div>
+                <div class="score-box">
+                    <h3>بهترین امتیاز قبلی</h3>
+                    <div class="score-value" id="previousBestScore">0</div>
+                </div>
+            </div>
+            
+            <div class="leaderboard">
+                <h2>جدول رهبران</h2>
+                <table id="leaderboardTable">
+                    <thead>
+                        <tr>
+                            <th>رتبه</th>
+                            <th>نام</th>
+                            <th>امتیاز</th>
+                            <th>تاریخ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        <!-- داده‌های جدول اینجا وارد می‌شوند -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <button id="playAgainButton">بازی دوباره</button>
+        </div>
+    </div>
+
+    <script>
+        // داده‌های سوالات
+        const questions = [
+            // سطح آسان
+            {
+                question: "قلب انسان چند حفره دارد؟",
+                options: ["2 حفره", "3 حفره", "4 حفره"],
+                correctAnswer: 2,
+                difficulty: "easy"
+            },
+            {
+                question: "کدام بخش از قلب خون اکسیژن‌دار را دریافت می‌کند؟",
+                options: ["بطن چپ", "دهلیز چپ", "بطن راست"],
+                correctAnswer: 1,
+                difficulty: "easy"
+            },
+            
+            // سطح متوسط
+            {
+                question: "کدام دریچه بین دهلیز چپ و بطن چپ قرار دارد؟",
+                options: ["دریچه میترال", "دریچه تریکوسپید", "دریچه پولمونری"],
+                correctAnswer: 0,
+                difficulty: "medium"
+            },
+            {
+                question: "ضربان قلب طبیعی در بزرگسالان چقدر است؟",
+                options: ["40-60 بار در دقیقه", "60-100 بار در دقیقه", "100-140 بار در دقیقه"],
+                correctAnswer: 1,
+                difficulty: "medium"
+            },
+            {
+                question: "کدام شریان خون را از بطن چپ خارج می‌کند؟",
+                options: ["شریان پولمونری", "شریان آئورت", "شریان کرونری"],
+                correctAnswer: 1,
+                difficulty: "medium"
+            },
+            
+            // سطح سخت
+            {
+                question: "کدام لایه قلب مستقیماً با خون در تماس است؟",
+                options: ["میوکارد", "اندوکارد", "پریکارد"],
+                correctAnswer: 1,
+                difficulty: "hard"
+            },
+            {
+                question: "سیستم هدایت الکتریکی قلب از کجا شروع می‌شود؟",
+                options: ["گره AV", "گره SA", "باندل هیس"],
+                correctAnswer: 1,
+                difficulty: "hard"
+            },
+            {
+                question: "کدام بخش از قلب مسئول ایجاد صدای اول قلب (S1) است؟",
+                options: ["بسته شدن دریچه های میترال و تریکوسپید", "بسته شدن دریچه های آئورت و پولمونری", "انقباض دهلیزها"],
+                correctAnswer: 0,
+                difficulty: "hard"
+            }
+        ];
+
+        // متغیرهای بازی
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        let coins = 0;
+        let playerName = "";
+        let timer;
+        let timeLeft = 20;
+        let questionsAnswered = 0;
+        let currentDifficulty = "easy"; // شروع با سوالات آسان
+        let avatarSize = 60;
+        
+        // عناصر DOM
+        const startScreen = document.getElementById('startScreen');
+        const gameScreen = document.getElementById('gameScreen');
+        const endScreen = document.getElementById('endScreen');
+        const startButton = document.getElementById('startButton');
+        const playerNameInput = document.getElementById('playerName');
+        const playerNameDisplay = document.getElementById('playerNameDisplay');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const progressBar = document.getElementById('progressBar');
+        const coinCount = document.getElementById('coinCount');
+        const avatar = document.getElementById('avatar');
+        const previousScoreContainer = document.getElementById('previousScoreContainer');
+        const previousScoreText = document.getElementById('previousScore');
+        const currentScoreElement = document.getElementById('currentScore');
+        const previousBestScoreElement = document.getElementById('previousBestScore');
+        const correctAnswersElement = document.getElementById('correctAnswers');
+        const wrongAnswersElement = document.getElementById('wrongAnswers');
+        const playAgainButton = document.getElementById('playAgainButton');
+        const leaderboardBody = document.getElementById('leaderboardBody');
+        const finalMessage = document.getElementById('finalMessage');
+
+        // رویدادها
+        startButton.addEventListener('click', startGame);
+        playAgainButton.addEventListener('click', resetGame);
+
+        // بارگذاری صفحه - بررسی امتیاز قبلی
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPreviousScore();
+        });
+
+        // شروع بازی
+        function startGame() {
+            if (playerNameInput.value.trim() === "") {
+                alert("لطفاً نام خود را وارد کنید");
+                return;
+            }
+            
+            playerName = playerNameInput.value.trim();
+            playerNameDisplay.textContent = playerName;
+            
+            startScreen.style.display = "none";
+            gameScreen.style.display = "block";
+            
+            // انتخاب اولین سوال بر اساس سطح دشواری
+            selectQuestionByDifficulty();
+            startTimer();
+        }
+
+        // انتخاب سوال بر اساس سطح دشواری
+        function selectQuestionByDifficulty() {
+            const filteredQuestions = questions.filter(q => q.difficulty === currentDifficulty);
+            
+            // اگر سوالی در این سطح وجود ندارد، سطح را تغییر دهید
+            if (filteredQuestions.length === 0) {
+                currentDifficulty = currentDifficulty === "easy" ? "medium" : "hard";
+                selectQuestionByDifficulty();
+                return;
+            }
+            
+            currentQuestionIndex = Math.floor(Math.random() * filteredQuestions.length);
+            const question = filteredQuestions[currentQuestionIndex];
+            
+            displayQuestion(question);
+        }
+
+        // نمایش سوال
+        function displayQuestion(question) {
+            questionText.textContent = question.question;
+            optionsContainer.innerHTML = "";
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => selectAnswer(index, question.correctAnswer));
+                optionsContainer.appendChild(optionElement);
+            });
+            
+            // انیمیشن fade-in برای سوال جدید
+            document.getElementById('questionContainer').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('questionContainer').style.opacity = 1;
+            }, 100);
+        }
+
+        // انتخاب پاسخ
+        function selectAnswer(selectedIndex, correctIndex) {
+            clearInterval(timer);
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((option, index) => {
+                option.style.pointerEvents = "none"; // غیرفعال کردن کلیک بیشتر
+                
+                if (index === correctIndex) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && index !== correctIndex) {
+                    option.classList.add('wrone');
+                }
+            });
+            
+            // بررسی پاسخ
+            if (selectedIndex === correctIndex) {
+                handleCorrectAnswer();
+            } else {
+                handleWrongAnswer();
+            }
+            
+            // تأخیر قبل از نمایش سوال بعدی
+            setTimeout(() => {
+                questionsAnswered++;
+                
+                if (questionsAnswered < 10) {
+                    nextQuestion();
+                } else {
+                    endGame();
+                }
+            }, 1500);
+        }
+
+        // پاسخ صحیح
+        function handleCorrectAnswer() {
+            correctAnswers++;
+            coins++;
+            coinCount.textContent = coins;
+            
+            // افزایش اندازه آواتار
+            avatarSize += 5;
+            avatar.style.width = `${avatarSize}px`;
+            avatar.style.height = `${avatarSize}px`;
+            
+            // افزایش سطح دشواری
+            if (currentDifficulty === "easy") {
+                currentDifficulty = "medium";
+            } else if (currentDifficulty === "medium") {
+                currentDifficulty = "hard";
+            }
+            
+            // امتیاز بر اساس سطح دشواری
+            if (currentDifficulty === "easy") {
+                score += 1;
+            } else if (currentDifficulty === "medium") {
+                score += 2;
+            } else {
+                score += 3;
+            }
+        }
+
+        // پاسخ غلط
+        function handleWrongAnswer() {
+            wrongAnswers++;
+            
+            // کاهش اندازه آواتار (حداقل 40 پیکسل)
+            avatarSize = Math.max(40, avatarSize - 10);
+            avatar.style.width = `${avatarSize}px`;
+            avatar.style.height = `${avatarSize}px`;
+            
+            // کاهش سطح دشواری
+            if (currentDifficulty === "hard") {
+                currentDifficulty = "medium";
+            } else if (currentDifficulty === "medium") {
+                currentDifficulty = "easy";
+            }
+        }
+
+        // سوال بعدی
+        function nextQuestion() {
+            timeLeft = 20;
+            progressBar.style.width = "100%";
+            selectQuestionByDifficulty();
+            startTimer();
+        }
+
+        // تایمر
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 20;
+            progressBar.style.width = "100%";
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                const progressPercent = (timeLeft / 20) * 100;
+                progressBar.style.width = `${progressPercent}%`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        // تمام شدن زمان
+        function handleTimeUp() {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.style.pointerEvents = "none";
+            });
+            
+            // پیدا کردن پاسخ صحیح
+            const currentQuestion = questions.find(q => q.question === questionText.textContent);
+            if (currentQuestion) {
+                options[currentQuestion.correctAnswer].classList.add('correct');
+            }
+            
+            handleWrongAnswer();
+            
+            setTimeout(() => {
+                questionsAnswered++;
+                
+                if (questionsAnswered < 10) {
+                    nextQuestion();
+                } else {
+                    endGame();
+                }
+            }, 1500);
+        }
+
+        // پایان بازی
+        function endGame() {
+            gameScreen.style.display = "none";
+            endScreen.style.display = "block";
+            
+            currentScoreElement.textContent = score;
+            correctAnswersElement.textContent = `پاسخ‌های صحیح: ${correctAnswers}`;
+            wrongAnswersElement.textContent = `پاسخ‌های غلط: ${wrongAnswers}`;
+            
+            // پیام نهایی بر اساس امتیاز
+            if (score >= 20) {
+                finalMessage.textContent = "عالی بود! شما آناتومی قلب را به خوبی می‌شناسید.";
+            } else if (score >= 10) {
+                finalMessage.textContent = "خوب بود! دانش شما درباره آناتومی قلب قابل قبول است.";
+            } else {
+                finalMessage.textContent = "نیاز به مطالعه بیشتر دارید. آناتومی قلب را بیشتر تمرین کنید.";
+            }
+            
+            // ذخیره امتیاز و به روزرسانی لیدربورد
+            saveScore();
+            updateLeaderboard();
+        }
+
+        // ذخیره امتیاز
+        function saveScore() {
+            const playerData = {
+                name: playerName,
+                score: score,
+                coins: coins,
+                correctAnswers: correctAnswers,
+                wrongAnswers: wrongAnswers,
+                date: new Date().toLocaleDateString('fa-IR')
+            };
+            
+            // ذخیره در localStorage
+            localStorage.setItem('heartAnatomyGame_lastScore', JSON.stringify(playerData));
+            
+            // به روزرسانی بهترین امتیاز
+            const bestScore = localStorage.getItem('heartAnatomyGame_bestScore');
+            if (!bestScore || score > JSON.parse(bestScore).score) {
+                localStorage.setItem('heartAnatomyGame_bestScore', JSON.stringify(playerData));
+            }
+            
+            // ذخیره در لیدربورد
+            const leaderboard = JSON.parse(localStorage.getItem('heartAnatomyGame_leaderboard') || "[]");
+            leaderboard.push(playerData);
+            
+            // مرتب سازی بر اساس امتیاز (نزولی)
+            leaderboard.sort((a, b) => b.score - a.score);
+            
+            // فقط 5 رکورد برتر را نگه دارید
+            if (leaderboard.length > 5) {
+                leaderboard.length = 5;
+            }
+            
+            localStorage.setItem('heartAnatomyGame_leaderboard', JSON.stringify(leaderboard));
+        }
+
+        // بارگذاری امتیاز قبلی
+        function loadPreviousScore() {
+            const bestScore = localStorage.getItem('heartAnatomyGame_bestScore');
+            
+            if (bestScore) {
+                const data = JSON.parse(bestScore);
+                previousScoreText.textContent = `${data.score} امتیاز (${data.date})`;
+            } else {
+                previousScoreContainer.style.display = "none";
+            }
+        }
+
+        // به روزرسانی لیدربورد
+        function updateLeaderboard() {
+            const leaderboard = JSON.parse(localStorage.getItem('heartAnatomyGame_leaderboard') || "[]");
+            leaderboardBody.innerHTML = "";
+            
+            if (leaderboard.length === 0) {
+                leaderboardBody.innerHTML = "<tr><td colspan='4'>هنوز رکوردی ثبت نشده است</td></tr>";
+                return;
+            }
+            
+            leaderboard.forEach((player, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${player.name}</td>
+                    <td>${player.score}</td>
+                    <td>${player.date}</td>
+                `;
+                
+                leaderboardBody.appendChild(row);
+            });
+            
+            // نمایش بهترین امتیاز قبلی
+            const bestScore = localStorage.getItem('heartAnatomyGame_bestScore');
+            if (bestScore) {
+                const data = JSON.parse(bestScore);
+                previousBestScoreElement.textContent = data.score;
+            }
+        }
+
+        // ریست بازی
+        function resetGame() {
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswers = 0;
+            wrongAnswers = 0;
+            coins = 0;
+            questionsAnswered = 0;
+            currentDifficulty = "easy";
+            avatarSize = 60;
+            
+            endScreen.style.display = "none";
+            startScreen.style.display = "block";
+            
+            // به روزرسانی امتیاز قبلی
+            loadPreviousScore();
+        }
+    </script>
+</body>
+</html>
